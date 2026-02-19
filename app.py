@@ -6,8 +6,9 @@ import requests
 import logging
 from datetime import datetime
 
+#uncomment this for logging the data
+#logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', filemode='a')
 
-logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', filemode='a')
 load_dotenv()
 app = Flask(__name__)
 
@@ -63,7 +64,8 @@ def fb_feed():
                 print(f"Error processing page: {e}")
                 break
         
-        logging.debug(fb_posts)
+        #uncomment to log
+        #logging.debug(fb_posts)
         return render_template('index.html', posts=fb_posts)
         
     except facebook.GraphAPIError as e:

@@ -3,19 +3,29 @@ from flask import Flask, render_template
 import os
 import facebook
 import requests
+import logging
 from datetime import datetime
 
 
+logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', filemode='a')
 load_dotenv()
 app = Flask(__name__)
 
-
-app_id = os.getenv("APP_ID")
+#ennviroment variable for personal account
 #app_secret = os.getenv("APP_SECRET")
 #access_token = os.getenv("ACCESS_TOKEN")
+
+page_id = os.getenv("PAGE_ID")
 page_access_token = os.getenv("PAGE_ACCESS_TOKEN")
 
-graph = facebook.GraphAPI(page_access_token)
+if not page_id:
+    raise ValueError("Missing Page ID Enviroment Variables")
+
+if not page_access_token:
+    raise ValueError("Missing Page Token Enviroment Variables")
+
+
+graph = facebook.GraphAPI(access_token=page_access_token)
 
 @app.route('/')
 def fb_feed():
@@ -23,7 +33,7 @@ def fb_feed():
     
     try: 
         posts = graph.get_connections(
-            app_id,
+            page_id,
             "posts",
             fields="id,message,created_time,full_picture,from{name,picture}",
             limit=10
@@ -53,6 +63,7 @@ def fb_feed():
                 print(f"Error processing page: {e}")
                 break
         
+        logging.debug(fb_posts)
         return render_template('index.html', posts=fb_posts)
         
     except facebook.GraphAPIError as e:
